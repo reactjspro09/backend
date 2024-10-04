@@ -5,42 +5,40 @@ const cors = require('cors'); // To handle cross-origin requests
 const app = express();
 const port = process.env.PORT || 3000;
 const nodemailer = require('nodemailer'); // For sending emails
-
+const bodyParser = require('body-parser');
 app.use(cors()); // Enable CORS to allow communication between frontend and backend
 app.use(express.json()); // Parse JSON request bodies
 
-// Nodemailer transporter configuration
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // You can use 'gmail', or your own SMTP provider
-  auth: {
-    user: 'businesswithtuhin.b@gmail.com', // Replace with your email
-    pass: 'Tuhin3362bati', // Replace with your email password or app password
-  },
-});
+app.use(bodyParser.json());
 
-// Route to send an email
 app.post('/send-email', async (req, res) => {
-  const { senderEmail, recipientEmail, subject, message } = req.body;
+  const { to, subject, text } = req.body;
 
-  // Define email options
+  // Create a transporter object with your email service credentials
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use your preferred email service
+    auth: {
+      user: 'your-email@gmail.com', // Replace with your email
+      pass: 'your-email-password', // Replace with your email password or app password
+    },
+  });
+
+  // Mail options
   const mailOptions = {
-    from: senderEmail,
-    to: recipientEmail,
-    subject: subject,
-    text: message,
+    from: '', // Sender's email
+    to, // Receiver's email from request body
+    subject, // Subject from request body
+    text, // Email body from request body
   };
 
+  // Send email
   try {
-    // Send the email
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: true, message: 'Email sent successfully' });
+    const info = await transporter.sendMail(mailOptions);
+    res.status(200).send({ message: 'Email sent successfully!', info });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
+    res.status(500).send({ message: 'Failed to send email', error });
   }
 });
-
-
-
 
 // Razorpay instance initialization with API Key and Secret
 const razorpay = new Razorpay({
@@ -70,6 +68,8 @@ app.post('/create-order', async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+
 app.post('/verify-payment', (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   
