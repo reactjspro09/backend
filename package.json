@@ -10,9 +10,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "razorpay": "^2.9.4"
   },
   "engines": {
-  "node": ">=20.17.0"
-}
+    "node": ">=20.17.0"
+  }
 }
